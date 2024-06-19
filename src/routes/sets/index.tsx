@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { wrapError } from '~/components/ErrorBoundary'
 import { useMainContext } from '~/context'
-import { CreateSets } from './createSets copy'
+import { CreateSets } from './createSets'
 import { SetsList } from './setsList'
 
 export const SetsView: React.FC = wrapError(() => {

@@ -1,29 +1,29 @@
 import {
-  Typography,
   Avatar,
-  Button,
-  TextField,
-  Grid,
   Badge,
-  Dialog,
-  useTheme,
-  useMediaQuery,
+  Button,
   Chip,
+  Dialog,
+  Grid,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
-import React from 'react'
-import Swal from 'sweetalert2'
 import Box from '@mui/material/Box'
-import { Cookies } from 'react-cookie'
-import { apiUrl, fetcher } from '~/util'
-import { useMainContext } from '~/context'
-import { Spinner } from '~/components/Spinner'
-import { useNavigate } from 'react-router-dom'
-import pointIcon from '~/assets/images/coin.png'
-import { storageService } from '~/service/firebase'
-import { UserRankTable } from '~/components/UserRank'
-import { wrapError } from '~/components/ErrorBoundary'
 import imageCompression from 'browser-image-compression'
-import { ref, uploadString, getDownloadURL } from 'firebase/storage'
+import { getDownloadURL, ref, uploadString } from 'firebase/storage'
+import React from 'react'
+import { Cookies } from 'react-cookie'
+import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
+import pointIcon from '~/assets/images/coin.png'
+import { wrapError } from '~/components/ErrorBoundary'
+import { Spinner } from '~/components/Spinner'
+import { UserRankTable } from '~/components/UserRank'
+import { useMainContext } from '~/context'
+import { storageService } from '~/service/firebase'
+import { apiUrl, fetcher } from '~/util'
 
 export const MyPage: React.FC = wrapError(() => {
   const cookies = new Cookies()
@@ -78,7 +78,7 @@ export const MyPage: React.FC = wrapError(() => {
 
   React.useEffect(() => {
     if (!authToken) return navigate('/auth/login')
-    if (!user) return
+    if (!user || !user.profile) return
     setProfileUrl(user.profile.avatar)
     setDisplayName(user.profile.displayName)
     setLoading(false)
@@ -95,9 +95,27 @@ export const MyPage: React.FC = wrapError(() => {
       }}
     >
       {loading ? (
-        <Box sx={{ mt: 6 }}>
-          <Spinner />
-        </Box>
+        <>
+          <Box sx={{ mt: 6 }}>
+            <Spinner />
+          </Box>
+          <Box sx={{ mt: 6, textAlign: 'center' }}>
+            <Typography variant="h6">
+              포켓몬 리그에서 트레이너 정보를 불러오는중...
+            </Typography>
+            <Button
+              sx={{ mt: 2 }}
+              variant="contained"
+              onClick={() => {
+                cookies.remove('Authorization')
+                update((v) => ({ ...v, user: null }))
+                window.location.reload()
+              }}
+            >
+              다시 로그인
+            </Button>
+          </Box>
+        </>
       ) : (
         <Box
           sx={{
@@ -110,7 +128,6 @@ export const MyPage: React.FC = wrapError(() => {
             <Avatar
               alt={'user'}
               src={profileUrl}
-              imgProps={{ crossOrigin: 'anonymous' }}
               sx={{ width: '96px', height: '96px', mt: 6 }}
             />
           </label>

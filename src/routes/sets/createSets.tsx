@@ -1,36 +1,60 @@
 import LoadingButton from '@mui/lab/LoadingButton'
-import {
-  Autocomplete,
-  Avatar,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Grid,
-  Radio,
-  RadioGroup,
-} from '@mui/material'
+import { Avatar, Grid } from '@mui/material'
 import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { VariantType, useSnackbar } from 'notistack'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCookie } from 'react-use-cookie'
+import { AbilityAutocomplete } from '~/components/setsCreate/AbilityAutocomplete'
+import { ItemAutocomplete } from '~/components/setsCreate/ItemAutocomplete'
+import { MoveSelector } from '~/components/setsCreate/MoveSelector'
+import { NautreAutocomplete } from '~/components/setsCreate/NatureAutocomplete'
+import { PokemonAutocomplete } from '~/components/setsCreate/PokemonAutocomplete'
 import { StatTable } from '~/components/setsCreate/RealStatsTable'
+import { RuleSelector } from '~/components/setsCreate/ruleSelector'
 import { StatSlider } from '~/components/setsCreate/StatSlider'
+import { TeraTypeAutoComplete } from '~/components/setsCreate/teraTypeAutoComplete'
 import { Spinner } from '~/components/Spinner'
 import { useMainContext } from '~/context'
 import { useAutoCompleteContext } from '~/layouts/sets/context'
 import { apiUrl, fetcher, put } from '~/util'
 import {
+  Item,
+  Move,
   Nature,
   PokemonSetCreateType,
+  itemsInit,
+  movesInit,
   natureInit,
   pokemonInit,
 } from './initialize'
 
+interface Stats {
+  atk: number
+  def: number
+  spa: number
+  spd: number
+  spe: number
+}
+
 const statKeys = ['HP', '공격', '방어', '특공', '특방', '스핏']
+const statEn: { [key: number]: keyof Stats } = {
+  1: 'atk',
+  2: 'def',
+  3: 'spa',
+  4: 'spd',
+  5: 'spe',
+}
+const styles = {
+  pokemonAvatar: {
+    width: 100,
+    height: 100,
+    margin: 'auto',
+    marginTop: '20px',
+  },
+}
 export const CreateSets: React.FC = () => {
   const navigate = useNavigate()
   const { user } = useMainContext()
@@ -39,12 +63,8 @@ export const CreateSets: React.FC = () => {
 
   const [pokemons] = React.useState<PokemonSetCreateType[]>(pokemonInit)
   const [natures] = React.useState<Nature[]>(natureInit)
-  const [items] = React.useState<[{ label: string; id: number }]>([
-    { label: '', id: 0 },
-  ])
-  const [moves] = React.useState<[{ label: string; type: string }]>([
-    { label: '테라버스트', type: 'Normal' },
-  ])
+  const [items] = React.useState<Item[]>(itemsInit)
+  const [moves] = React.useState<Move[]>(movesInit)
   const [moveList, setMove] = React.useState<{ label: string; type: string }[]>(
     [{ label: '', type: '' }],
   )
@@ -54,19 +74,20 @@ export const CreateSets: React.FC = () => {
 
   const [disabled, setDisabled] = React.useState<boolean>(true)
   const [pokemonDict] = React.useState<string[]>([])
-  const [abilities] = React.useState<[{ label: string }]>([{ label: '' }])
   const [pokemon, setPokemon] = React.useState<string>('미싱노')
   const [item, setItem] = React.useState<string>('')
   const [nature, setNature] = React.useState<string>('')
+  const [abilities] = React.useState<[{ label: string }]>([{ label: '' }])
   const [ability, setAbility] = React.useState<string>('')
   const [setsName, setName] = React.useState<string>('')
-  const [Effort, setEffort] = React.useState<number[]>([0, 0, 0, 0, 0, 0])
-  const [Ivs, setIvs] = React.useState<number[]>([31, 31, 31, 31, 31, 31])
   const [type, setType] = React.useState<'single' | 'double'>('single')
   const [teratype, setTeraType] = React.useState<string>()
-  const [waitUpload, setWaitUpload] = React.useState<boolean>(false)
+
   const [description, setDescription] = React.useState<string>('')
+  const [Effort, setEffort] = React.useState<number[]>([0, 0, 0, 0, 0, 0])
+  const [Ivs, setIvs] = React.useState<number[]>([31, 31, 31, 31, 31, 31])
   const [realStats, setRealStats] = React.useState<number[]>([0, 0, 0, 0, 0, 0])
+  const [waitUpload, setWaitUpload] = React.useState<boolean>(false)
   const [tableRows, setTableRows] = React.useState<
     { label: string; value: number }[]
   >([])
@@ -341,33 +362,8 @@ export const CreateSets: React.FC = () => {
             <Typography variant="h5" sx={{ textAlign: 'center' }}>
               샘플 등록하기
             </Typography>
-            <FormControl>
-              <FormLabel id="demo-row-radio-buttons-group-label">
-                샘플 유형
-              </FormLabel>
-              <RadioGroup
-                row
-                value={type}
-                onChange={(e) => {
-                  setType(e.target.value as 'single' | 'double')
-                }}
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
-              >
-                <FormControlLabel
-                  value="single"
-                  control={<Radio />}
-                  label="싱글"
-                />
-                <FormControlLabel
-                  value="double"
-                  control={<Radio />}
-                  label="더블"
-                />
-              </RadioGroup>
-            </FormControl>
+            <RuleSelector type={type} setType={setType} />
             <TextField
-              id="standard-basic"
               label="샘플 이름"
               value={setsName}
               onChange={(e) => {
@@ -379,222 +375,48 @@ export const CreateSets: React.FC = () => {
           </Grid>
           <Grid item xs={4}>
             <Avatar
+              className="pokemonAvatar"
               variant="square"
-              sx={{
-                width: 100,
-                height: 100,
-                margin: 'auto',
-                marginTop: '20px',
-              }}
+              sx={styles.pokemonAvatar}
               imgProps={{ crossOrigin: 'anonymous' }}
               src={apiUrl(`/v1/sprites/pokemon/${pokemon}`)}
             />
           </Grid>
           <Grid item xs={8}>
-            <Autocomplete
-              id="pokemons"
-              options={pokemons}
-              sx={{ width: '100%' }}
-              renderInput={(params) => (
-                <TextField
-                  sx={{ '& > p': { color: 'red' } }}
-                  label="포켓몬"
-                  {...params}
-                  helperText={
-                    pokemon !== '미싱노' ? '' : '* 올바른 포켓몬을 선택해주세요'
-                  }
-                />
-              )}
-              onChange={(e, v) => {
-                if (!v) return
-                setPokemon(v.label)
-              }}
-            />
-            <Autocomplete
-              id="items"
-              options={items}
-              sx={{ width: '100%', marginTop: '20px' }}
-              renderOption={(props, option) => (
-                <Box
-                  component="li"
-                  sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                  {...props}
-                >
-                  <img
-                    crossOrigin="anonymous"
-                    loading="lazy"
-                    width="30"
-                    src={apiUrl(`/v1/sprites/items/${option.label}`)}
-                  />
-                  {option.label}
-                </Box>
-              )}
-              renderInput={(params) => (
-                <TextField
-                  sx={{ '& > p': { color: 'red' } }}
-                  label="지닌물건"
-                  {...params}
-                  helperText={item ? '' : '* 올바른 지닌물건을 선택해주세요'}
-                />
-              )}
-              onChange={(e, v) => {
-                if (!v) return
-                setItem(v.label)
-              }}
-            />
+            <PokemonAutocomplete pokemons={pokemons} setPokemon={setPokemon} />
+            <ItemAutocomplete items={items} setItem={setItem} />
           </Grid>
           <Grid item xs={6} mt={4}>
-            <Autocomplete
-              id="natures"
-              options={natures}
-              sx={{ width: '100%' }}
-              renderInput={(params) => (
-                <TextField
-                  sx={{ '& > p': { color: 'red' } }}
-                  label="성격"
-                  {...params}
-                  helperText={nature ? '' : '* 올바른 성격을 선택해주세요'}
-                />
-              )}
-              onChange={(e, v) => {
-                if (!v) return
-                setNature(v.name)
-              }}
-            />
+            <NautreAutocomplete natures={natures} setNature={setNature} />
           </Grid>
           <Grid item xs={6} mt={4}>
-            <Autocomplete
-              id="ability"
+            <AbilityAutocomplete
+              abilities={abilities}
+              ability={ability}
+              setAbility={setAbility}
               disabled={disabled}
-              options={abilities}
-              value={{ label: ability }}
-              sx={{ width: '100%' }}
-              renderInput={(params) => (
-                <TextField
-                  sx={{ '& > p': { color: 'red' } }}
-                  label="특성"
-                  {...params}
-                  helperText={
-                    ability || disabled ? '' : '* 올바른 특성을 선택해주세요'
-                  }
-                />
-              )}
-              onChange={(e, v) => {
-                if (!v) return
-                setAbility(v.label)
-              }}
             />
           </Grid>
-          <Autocomplete
-            multiple
-            id="moves"
-            options={moves}
-            value={moveList}
+          <MoveSelector
+            moves={moves}
+            moveList={moveList}
             disabled={disabled}
-            sx={{ width: '100%', marginTop: '20px' }}
-            getOptionDisabled={() => (moveList.length > 3 ? true : false)}
-            renderOption={(props, option) => (
-              <Box
-                component="li"
-                sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                {...props}
-              >
-                <img
-                  crossOrigin="anonymous"
-                  loading="lazy"
-                  width="25"
-                  src={apiUrl(`/v1/sprites/types/${option.type}.svg`)}
-                />
-                {option.label}
-              </Box>
-            )}
-            renderInput={(params) => (
-              <TextField
-                sx={{ '& > p': { color: 'red' } }}
-                label="기술"
-                {...params}
-                helperText={
-                  moves[0].label !== '쪼리핑펀치' || disabled
-                    ? ''
-                    : '* 올바른 기술을 선택해주세요'
-                }
-              />
-            )}
-            renderTags={(
-              value: readonly { label: string; type: string }[],
-              getTagProps,
-            ) =>
-              value.map(
-                (option: { label: string; type: string }, index: number) => (
-                  <Chip
-                    sx={{
-                      marginBottom: '2px',
-                      marginLeft: '2px',
-                      width: '47%',
-                    }}
-                    label={option.label}
-                    variant="outlined"
-                    avatar={
-                      <Avatar
-                        sx={{ width: 20 }}
-                        imgProps={{ crossOrigin: 'anonymous' }}
-                        src={apiUrl(`/v1/sprites/types/${option.type}.svg`)}
-                      />
-                    }
-                    {...getTagProps({ index })}
-                  />
-                ),
-              )
-            }
-            onChange={(e, v) => {
-              if (!v) return
-              setMove(v)
-            }}
+            setMove={setMove}
           />
-          <Autocomplete
-            id="teraTypes"
-            options={teraTypes}
-            sx={{ width: '100%', marginTop: '20px' }}
-            renderOption={(props, option) => (
-              <Box
-                component="li"
-                sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                {...props}
-              >
-                <img
-                  crossOrigin="anonymous"
-                  loading="lazy"
-                  width="25"
-                  src={apiUrl(`/v1/sprites/teraTypes/${option.type}.png`)}
-                />
-                {option.label}
-              </Box>
-            )}
-            renderInput={(params) => (
-              <TextField
-                sx={{ '& > p': { color: 'red' } }}
-                label="테라스탈 타입"
-                {...params}
-                helperText={
-                  teratype ? '' : '* 올바른 테라스탈 타입을 선택해주세요'
-                }
-              />
-            )}
-            onChange={(e, v) => {
-              if (!v) return
-              setTeraType(v.type)
-            }}
+          <TeraTypeAutoComplete
+            teraTypes={teraTypes}
+            setTerastal={setTeraType}
           />
           <Grid item xs={12} mt={4}>
             <TextField
-              placeholder="샘플 설명을 입력해주세요"
               multiline
-              rows={2}
-              maxRows={10}
-              inputProps={{ maxLength: 256 }}
+              minRows={2}
+              maxRows={4}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
               sx={{ width: '100%' }}
+              inputProps={{ maxLength: 256 }}
+              placeholder="샘플 설명을 입력해주세요"
+              onChange={(e) => setDescription(e.target.value)}
             />
           </Grid>
           <Grid item xs={2} mt={2} mb={2}>
@@ -622,6 +444,11 @@ export const CreateSets: React.FC = () => {
                 updatedIvs[index] = value
                 setIvs(updatedIvs)
               }}
+              correction={
+                natures.find((v) => v.label === nature)?.correction[
+                  statEn[index]
+                ]
+              }
             />
           ))}
           <Grid item xs={12}>

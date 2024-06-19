@@ -1,9 +1,9 @@
+import { Box, Button, Typography } from '@mui/material'
 import React from 'react'
 import { useCookies } from 'react-cookie'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import DiscordIcon from '~/assets/images/discord.svg'
 import { wrapError } from '~/components/ErrorBoundary'
-import { Button, Box, Typography } from '@mui/material'
 
 const DiscordUrl = `https://discord.com/api/oauth2/authorize?client_id=${
   import.meta.env.VITE_DISCORD_CLIENT_ID
@@ -42,6 +42,11 @@ export const Login: React.FC = wrapError(() => {
         <img src={DiscordIcon} alt="discord" style={styles.icon} />
         디스코드로 로그인
       </Button>
+      <Typography variant="body2" sx={{ mt: 3, textAlign: 'center' }}>
+        로그인을 이용하실경우 <br />
+        <Link to="/privacy"> 개인정보 처리방침에</Link> 동의하시는것으로
+        간주됩니다.
+      </Typography>
     </Box>
   )
 })

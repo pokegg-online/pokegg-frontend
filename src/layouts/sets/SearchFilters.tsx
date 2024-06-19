@@ -1,11 +1,11 @@
-import React from 'react'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import Box from '@mui/material/Box'
-import { wrapError } from '~/components/ErrorBoundary'
 import { FormControl, Input, InputAdornment, ToggleButton } from '@mui/material'
+import Box from '@mui/material/Box'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import React from 'react'
 import searchIcon from '~/assets/images/search.svg'
-import { SetsContextData, SetsLayoutContext, useSetsContext } from './context'
+import { wrapError } from '~/components/ErrorBoundary'
 import { apiUrl, fetcher } from '~/util'
+import { SetsContextData, SetsLayoutContext } from './context'
 
 export const SearchFilters: React.FC = wrapError(() => {
   const { data, update } = React.useContext(SetsLayoutContext)
@@ -19,8 +19,13 @@ export const SearchFilters: React.FC = wrapError(() => {
     event: React.MouseEvent<HTMLElement>,
     newAlignment: string,
   ) => {
-    setAlignment(newAlignment)
-    update((v) => ({ ...v, type: newAlignment as SetsContextData['type'] }))
+    if (!newAlignment) {
+      setAlignment('all')
+      update((v) => ({ ...v, type: 'all' }))
+    } else {
+      setAlignment(newAlignment)
+      update((v) => ({ ...v, type: newAlignment as SetsContextData['type'] }))
+    }
   }
 
   return (
@@ -48,15 +53,15 @@ export const SearchFilters: React.FC = wrapError(() => {
 
 export const SearchBar: React.FC = wrapError(() => {
   const [query, setQuery] = React.useState('')
-  const { update } = useSetsContext()
+  const { data, update } = React.useContext(SetsLayoutContext)
 
   React.useEffect(() => {
     const fetchData = async () => {
       if (query === '') return
+
       const { sets } = await fetcher(
-        apiUrl(`/v1/sets?&query=${query}&offset=0`),
+        apiUrl(`/v1/sets?type=${data.type}&query=${query}&offset=0`),
       )
-      if (!sets) return
 
       update((v) => ({ ...v, result: sets, query }))
     }

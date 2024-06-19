@@ -16,6 +16,7 @@ interface StatSliderProps {
   ) => void
   onIVBlur: (index: number) => void
   onIVChange: (index: number, value: number) => void
+  correction: number | undefined
 }
 
 export const StatSlider: React.FC<StatSliderProps> = wrapError(
@@ -29,6 +30,7 @@ export const StatSlider: React.FC<StatSliderProps> = wrapError(
     onEVInputChange,
     onIVBlur,
     onIVChange,
+    correction,
   }) => {
     const handleSliderChange = (event: Event, newValue: number | number[]) => {
       onSliderChange(index, newValue as number)
@@ -40,10 +42,13 @@ export const StatSlider: React.FC<StatSliderProps> = wrapError(
       onEVInputChange(index, event)
     }
 
+    const nameColor =
+      correction === 1.1 ? 'blue' : correction === 0.9 ? 'red' : 'black'
+
     return (
       <React.Fragment>
         <Grid item xs={1}>
-          {name}
+          <a style={{ color: nameColor }}>{name}</a>
         </Grid>
         <Grid item xs={7} sx={{ paddingLeft: '15px' }}>
           <Slider

@@ -16,7 +16,6 @@ export const TeraTypeAutoComplete: React.FC<TerastalTypeSelectProps> = ({
 }) => {
   const [teraType, setTeraType] = React.useState<string | null>(null)
   const handleChange = (
-    event: React.SyntheticEvent<Element, Event>,
     value: {
       label: string
       type: string
@@ -58,7 +57,7 @@ export const TeraTypeAutoComplete: React.FC<TerastalTypeSelectProps> = ({
           helperText={teraType ? '' : '* 올바른 테라스탈 타입을 선택해주세요'}
         />
       )}
-      onChange={(e, v) => handleChange(e, v)}
+      onChange={(_, v) => handleChange(v)}
     />
   )
 }

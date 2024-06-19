@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "vitest",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "@sentry/react": "^7.33.0",
     "@sentry/tracing": "^7.33.0",
     "@types/firebase": "^3.2.1",
+    "@vercel/speed-insights": "^1.0.12",
     "adblock-detect-react": "^1.1.0",
     "axios": "^1.2.0",
     "browser-image-compression": "^2.0.0",
@@ -35,6 +37,7 @@
     "react-chartjs-2": "^5.0.1",
     "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
     "react-intersection-observer": "^9.4.1",
     "react-p5": "^1.3.33",
     "react-router-dom": "^6.4.3",
@@ -48,21 +51,29 @@
     "swr": "^1.3.0"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.1.0",
+    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/react": "^16.0.0",
     "@types/node": "^18.11.9",
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
+    "@types/react-helmet": "^6",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
     "@typescript-eslint/parser": "^7.13.0",
-    "@vitejs/plugin-react": "^2.2.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "esbuild": "^0.21.5",
     "eslint": "^9.5.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-react": "^7.34.2",
+    "jsdom": "^24.1.0",
     "prettier": "^3.3.2",
     "typescript": "^4.6.4",
-    "vite": "^3.2.3",
-    "vite-plugin-svgr": "^2.2.2"
+    "vite": "^5.3.1",
+    "vite-plugin-svgr": "^2.2.2",
+    "vitest": "^1.6.0"
   },
   "packageManager": "yarn@3.3.0"
 }

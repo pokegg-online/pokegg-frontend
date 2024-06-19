@@ -6,13 +6,14 @@ import { useParams } from 'react-router-dom'
 import { wrapError } from '~/components/ErrorBoundary'
 import { Spinner } from '~/components/Spinner'
 import { useDexContext } from '~/layouts/dex/context'
+import { Main } from '~/routes/main'
 import { DexContext } from './context'
 import { DexHeader } from './Header'
 import { DexStats } from './Stats'
 
 export const DexView: React.FC = wrapError(() => {
-  const { id, type } = useParams<'id' | 'type'>()
   const { data } = useDexContext()
+  const { id, type } = useParams<'id' | 'type'>()
 
   const item = React.useMemo(() => {
     if (!data.usages || !data.usages.length) return null
@@ -31,7 +32,7 @@ export const DexView: React.FC = wrapError(() => {
   return (
     <Box sx={{ height: '100%' }}>
       {item === false ? (
-        <Box>not found</Box>
+        <Main />
       ) : item === null ? (
         <Box
           sx={{

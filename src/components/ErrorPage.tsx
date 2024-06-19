@@ -1,14 +1,14 @@
-import './404page.scss'
+import { Button, useMediaQuery, useTheme } from '@mui/material'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, useMediaQuery, useTheme } from '@mui/material'
+import './404page.scss'
 
-export interface Iprops {
+export interface ErrorPageProps {
   code: string
 }
 
-export const ErrorPage: React.FC<Iprops> = (props: {
-  code: Iprops['code']
+export const ErrorPage: React.FC<ErrorPageProps> = (props: {
+  code: ErrorPageProps['code']
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()

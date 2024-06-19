@@ -49,18 +49,35 @@ export const getIV = (iv: Stats, type?: boolean) => {
 }
 
 export const getEV = (ev: Stats, type?: boolean) => {
-  const result = []
   if (type) {
+    const result = []
+
     for (const ikey in ev) {
-      const key: StatKey = ikey as StatKey
-      if (ev[key] !== 0) result.push(ev[key] + ' ' + key)
+      const key = ikey as StatKey
+      if (ev[key] !== 0) {
+        result.push(`${ev[key]} ${key}`)
+      }
     }
+
     return result.join(' / ')
   } else {
+    const grouped: { [value: number]: string[] } = {}
+
     for (const ikey in ev) {
-      const key: StatKey = ikey as StatKey
-      if (ev[key] !== 0) result.push(Dictionary[key] + ev[key])
+      const key = ikey as StatKey
+      if (ev[key] !== 0) {
+        if (!grouped[ev[key]]) {
+          grouped[ev[key]] = []
+        }
+        grouped[ev[key]].push(Dictionary[key])
+      }
     }
+
+    const result = Object.entries(grouped)
+      .sort(([valueA], [valueB]) => parseInt(valueB) - parseInt(valueA))
+      .map(([value, keys]) => keys.join('') + value)
+      .join(' ')
+
+    return result
   }
-  return result.join(' ')
 }

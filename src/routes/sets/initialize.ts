@@ -23,6 +23,30 @@ export interface PokemonSetCreateType {
   }
 }
 
+export interface Item {
+  label: string
+  id: number
+}
+
+export interface Move {
+  label: string
+  type: string
+}
+
+export interface Ability {
+  label: string
+  name: string
+}
+
+export const movesInit = [{ label: '테라버스트', type: 'Normal' }]
+
+export const itemsInit = [
+  {
+    label: '',
+    id: 9999,
+  },
+]
+
 export const natureInit = [
   {
     label: '',
